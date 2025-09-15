@@ -1,16 +1,20 @@
 import BookPreview from "../../components/bookPreview";
-import { useState, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import styles from './style.module.css'
+
+
 
 export default function Search() {
   // stores search results
   const [bookSearchResults, setBookSearchResults] = useState()
   // stores value of input field
-  const [query, setQuery] = useState("")
+  const [query, setQuery] = useState("React")
   // compare to query to prevent repeat API calls
   const [previousQuery, setPreviousQuery] = useState()
   // used to prevent rage clicks on form submits
   const [fetching, setFetching] = useState(false)
+  const [input, setInput] = useState("React")
+  
 
   // TODO: When the Search Page loads, use useEffect to fetch data from:
   // https://www.googleapis.com/books/v1/volumes?langRestrict=en&maxResults=16&q=YOUR_QUERY
@@ -25,20 +29,32 @@ export default function Search() {
 
   const inputRef = useRef()
   const inputDivRef = useRef()
-
+  
+  async function handleSubmit (e) {
+    e.preventDefault();
+    if (fetching) return
+    setFetching(true)
+    const res = await fetch('https://www.googleapis.com/books/v1/volumes?langRestrict=en&maxResults=16&q=React')
+    const data = await res.json()
+    setBookSearchResults(data)
+    setFetching(false) 
+  }
+  
   return (
     <main className={styles.search}>
       <h1>Book Search</h1>
       {/* TODO: add an onSubmit handler */}
-      <form className={styles.form}>
+      <form onSubmit = {handleSubmit} className={styles.form}>
         <label htmlFor="book-search">Search by author, title, and/or keywords:</label>
         <div ref={inputDivRef}>
           {/* TODO: add value and onChange props to the input element based on query/setQuery */}
           <input
             ref={inputRef}
-            type="text"
+            type="text" 
             name="book-search"
             id="book-search"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
             />
           <button type="submit">Submit</button>
         </div>
@@ -47,11 +63,13 @@ export default function Search() {
         // if loading, show the loading component
         // else if there are search results, render those
         // else show the NoResults component
+      
         fetching
         ? <Loading />
         : bookSearchResults?.length
         ? <div className={styles.bookList}>
             {/* TODO: render BookPreview components for each search result here based on bookSearchResults */}
+           
           </div>
         : <NoResults
           {...{inputRef, inputDivRef, previousQuery}}
