@@ -2,19 +2,17 @@ import BookPreview from "../../components/bookPreview";
 import { useState, useEffect, useRef } from 'react'
 import styles from './style.module.css'
 
-
-
 export default function Search() {
+  const [bookSearch, setBooksearch] = useState()
   // stores search results
-  const [bookSearchResults, setBookSearchResults] = useState()
+  const [bookSearchResults, setBookSearchResults] = useState([])
   // stores value of input field
   const [query, setQuery] = useState("React")
   // compare to query to prevent repeat API calls
   const [previousQuery, setPreviousQuery] = useState()
   // used to prevent rage clicks on form submits
   const [fetching, setFetching] = useState(false)
-  const [input, setInput] = useState("React")
-  
+  const [inpput, setInput] = useState()
 
   // TODO: When the Search Page loads, use useEffect to fetch data from:
   // https://www.googleapis.com/books/v1/volumes?langRestrict=en&maxResults=16&q=YOUR_QUERY
@@ -26,20 +24,29 @@ export default function Search() {
   // This function MUST prevent repeat searches if:
   // fetch has not finished
   // the query is unchanged
-
   const inputRef = useRef()
   const inputDivRef = useRef()
-  
+
+  useEffect(() => {
+    async function fetchData() {
+        const res = await fetch('https://www.googleapis.com/books/v1/volumes?langRestrict=en&maxResults=16&q=react');
+        const data = await res.json();
+        console.log("fetched data:", data); //just logging for now
+    } 
+    fetchData();
+}, []) //empty array ensures it runs only once on load
+   
   async function handleSubmit (e) {
     e.preventDefault();
     if (fetching) return
     setFetching(true)
-    const res = await fetch('https://www.googleapis.com/books/v1/volumes?langRestrict=en&maxResults=16&q=React')
+    const res = await fetch('https://www.googleapis.com/books/v1/volumes?langRestrict=en&maxResults=16&q=${input}');
     const data = await res.json()
-    setBookSearchResults(data)
+    setBookSearchResults(data);
+    console.log("setBookSearchResults:", data);
     setFetching(false) 
   }
-  
+    
   return (
     <main className={styles.search}>
       <h1>Book Search</h1>
@@ -63,13 +70,23 @@ export default function Search() {
         // if loading, show the loading component
         // else if there are search results, render those
         // else show the NoResults component
-      
         fetching
         ? <Loading />
         : bookSearchResults?.length
         ? <div className={styles.bookList}>
-            {/* TODO: render BookPreview components for each search result here based on bookSearchResults */}
-           
+          {/* TODO: render BookPreview components for each search result here based on bookSearchResults */}
+            <p>
+              <ul>
+              <BookPreview 
+              id={id}
+              title={title}
+              author={author} 
+              thumbnail={thunmbail}
+              previewLink={previewLink}
+              />
+            </ul>
+            </p>
+          
           </div>
         : <NoResults
           {...{inputRef, inputDivRef, previousQuery}}
