@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import styles from './style.module.css'
 
 export default function Search() {
-  const [bookSearch, setBooksearch] = useState()
+ 
   // stores search results
   const [bookSearchResults, setBookSearchResults] = useState([])
   // stores value of input field
@@ -12,8 +12,8 @@ export default function Search() {
   const [previousQuery, setPreviousQuery] = useState()
   // used to prevent rage clicks on form submits
   const [fetching, setFetching] = useState(false)
-  const [inpput, setInput] = useState()
-
+  const [input, setInput] = useState(null)
+  
   // TODO: When the Search Page loads, use useEffect to fetch data from:
   // https://www.googleapis.com/books/v1/volumes?langRestrict=en&maxResults=16&q=YOUR_QUERY
   // Use a query of "React"
@@ -26,14 +26,15 @@ export default function Search() {
   // the query is unchanged
   const inputRef = useRef()
   const inputDivRef = useRef()
+ 
 
   useEffect(() => {
-    async function fetchData() {
+    async function fetchBooks() {
         const res = await fetch('https://www.googleapis.com/books/v1/volumes?langRestrict=en&maxResults=16&q=react');
         const data = await res.json();
-        console.log("fetched data:", data); //just logging for now
+        console.log("fetched data:", data) //just logging for now  
     } 
-    fetchData();
+    fetchBooks();
 }, []) //empty array ensures it runs only once on load
    
   async function handleSubmit (e) {
@@ -42,8 +43,16 @@ export default function Search() {
     setFetching(true)
     const res = await fetch('https://www.googleapis.com/books/v1/volumes?langRestrict=en&maxResults=16&q=${input}');
     const data = await res.json()
-    setBookSearchResults(data);
-    console.log("setBookSearchResults:", data);
+    
+    const books = (data.items || []).map(book => ({
+      id: book.id,
+      title: book.volumeInfo.title,
+      authors: book.volumeInfo.authors,
+      thumbnail: book.volumeInfo.imageLinks?.thumbnail,
+      previewLink: book.volumeInfo.previewLink
+    }));
+    setBookSearchResults(books);
+    console.log("setBookSearchResults:", books);
     setFetching(false) 
   }
     
@@ -75,17 +84,17 @@ export default function Search() {
         : bookSearchResults?.length
         ? <div className={styles.bookList}>
           {/* TODO: render BookPreview components for each search result here based on bookSearchResults */}
-            <p>
-              <ul>
-              <BookPreview 
-              id={id}
-              title={title}
-              author={author} 
-              thumbnail={thunmbail}
-              previewLink={previewLink}
+           
+           {bookSearchResults.map(book => (
+              <BookPreview
+                key = {book.id}
+                title = {book.title}
+                authors = {book.authors}
+                thumbnail= {book.thumbnail}
+                previewLink = {book.previewLink}
               />
-            </ul>
-            </p>
+              
+           ))}
           
           </div>
         : <NoResults
