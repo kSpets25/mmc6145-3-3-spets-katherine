@@ -7,13 +7,13 @@ export default function Search() {
   // stores search results
   const [bookSearchResults, setBookSearchResults] = useState([])
   // stores value of input field
-  const [query, setQuery] = useState('react')
+  const [query, setQuery] = useState('React')
   // compare to query to prevent repeat API calls
-  const [previousQuery, setPreviousQuery] = useState()
+  const [previousQuery, setPreviousQuery] = useState('')
   // used to prevent rage clicks on form submits
   const [fetching, setFetching] = useState(false)
   
-  const [input, setInput] = useState('react')
+  const [input, setInput] = useState('')
   
   
   // TODO: When the Search Page loads, use useEffect to fetch data from:
@@ -60,6 +60,7 @@ export default function Search() {
     setBookSearchResults(books);
     console.log("setBookSearchResults:", books);
     setFetching(false) 
+    setPreviousQuery()
   }
   const handleChange = (e) => {
     setQuery(e.target.value) 
