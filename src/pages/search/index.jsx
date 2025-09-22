@@ -7,12 +7,14 @@ export default function Search() {
   // stores search results
   const [bookSearchResults, setBookSearchResults] = useState([])
   // stores value of input field
-  const [query, setQuery] = useState("React")
+  const [query, setQuery] = useState('react')
   // compare to query to prevent repeat API calls
   const [previousQuery, setPreviousQuery] = useState()
   // used to prevent rage clicks on form submits
   const [fetching, setFetching] = useState(false)
-  const [input, setInput] = useState(null)
+  
+  const [input, setInput] = useState('react')
+  
   
   // TODO: When the Search Page loads, use useEffect to fetch data from:
   // https://www.googleapis.com/books/v1/volumes?langRestrict=en&maxResults=16&q=YOUR_QUERY
@@ -24,24 +26,28 @@ export default function Search() {
   // This function MUST prevent repeat searches if:
   // fetch has not finished
   // the query is unchanged
+  
   const inputRef = useRef()
   const inputDivRef = useRef()
- 
+  
 
   useEffect(() => {
     async function fetchBooks() {
-        const res = await fetch('https://www.googleapis.com/books/v1/volumes?langRestrict=en&maxResults=16&q=react');
+      if (!query || setQuery === previousQuery) return
+        const res = await fetch('https://www.googleapis.com/books/v1/volumes?langRestrict=en&maxResults=16&q={react}');
         const data = await res.json();
         console.log("fetched data:", data) //just logging for now  
     } 
     fetchBooks();
-}, []) //empty array ensures it runs only once on load
+  }, []) //empty array ensures it runs only once on load
    
-  async function handleSubmit (e) {
-    e.preventDefault();
+  async function handleSubmit(e) {
+    e.preventDefault()
     if (fetching) return
+    if (!query.trim()) return;
     setFetching(true)
-    const res = await fetch('https://www.googleapis.com/books/v1/volumes?langRestrict=en&maxResults=16&q=${input}');
+    
+    const res = await fetch('https://www.googleapis.com/books/v1/volumes?langRestrict=en&maxResults=16&q=${query}');
     const data = await res.json()
     
     const books = (data.items || []).map(book => ({
@@ -55,7 +61,10 @@ export default function Search() {
     console.log("setBookSearchResults:", books);
     setFetching(false) 
   }
-    
+  const handleChange = (e) => {
+    setQuery(e.target.value) 
+  };
+  
   return (
     <main className={styles.search}>
       <h1>Book Search</h1>
@@ -70,7 +79,7 @@ export default function Search() {
             name="book-search"
             id="book-search"
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange = {handleChange} placeholder="search..."
             />
           <button type="submit">Submit</button>
         </div>
