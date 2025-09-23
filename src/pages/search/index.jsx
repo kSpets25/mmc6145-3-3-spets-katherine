@@ -15,7 +15,6 @@ export default function Search() {
   
   const [input, setInput] = useState('')
   
-  
   // TODO: When the Search Page loads, use useEffect to fetch data from:
   // https://www.googleapis.com/books/v1/volumes?langRestrict=en&maxResults=16&q=YOUR_QUERY
   // Use a query of "React"
@@ -33,7 +32,6 @@ export default function Search() {
 
   useEffect(() => {
     async function fetchBooks() {
-      if (!query || setQuery === previousQuery) return
         const res = await fetch('https://www.googleapis.com/books/v1/volumes?langRestrict=en&maxResults=16&q={react}');
         const data = await res.json();
         console.log("fetched data:", data) //just logging for now  
@@ -46,7 +44,6 @@ export default function Search() {
     if (fetching) return
     if (!query.trim()) return;
     setFetching(true)
-    
     const res = await fetch('https://www.googleapis.com/books/v1/volumes?langRestrict=en&maxResults=16&q=${query}');
     const data = await res.json()
     
@@ -80,7 +77,7 @@ export default function Search() {
             name="book-search"
             id="book-search"
             value={query}
-            onChange = {handleChange} placeholder="search..."
+            onChange = {handleChange} 
             />
           <button type="submit">Submit</button>
         </div>
